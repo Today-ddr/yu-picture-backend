@@ -9,20 +9,19 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.yupi.yupicturebackend.constant.UserConstant;
 import com.yupi.yupicturebackend.exception.BusinessException;
 import com.yupi.yupicturebackend.exception.ErrorCode;
+import com.yupi.yupicturebackend.mapper.UserMapper;
 import com.yupi.yupicturebackend.model.dto.user.UserQueryRequest;
 import com.yupi.yupicturebackend.model.entity.User;
 import com.yupi.yupicturebackend.model.enums.UserRoleEnum;
 import com.yupi.yupicturebackend.model.vo.LoginUserVO;
 import com.yupi.yupicturebackend.model.vo.UserVO;
 import com.yupi.yupicturebackend.service.UserService;
-import com.yupi.yupicturebackend.mapper.UserMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -247,6 +246,17 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         queryWrapper.like(StrUtil.isNotBlank(userProfile), "userProfile", userProfile);
         queryWrapper.orderBy(StrUtil.isNotEmpty(sortField), sortOrder.equals("ascend"), sortField);
         return queryWrapper;
+    }
+
+    /**
+     * 是否为管理员
+     *
+     * @param user
+     * @return
+     */
+    @Override
+    public boolean isAdmin(User user) {
+        return user != null && !UserRoleEnum.ADMIN.getValue().equals(user.getUserRole());
     }
 }
 
