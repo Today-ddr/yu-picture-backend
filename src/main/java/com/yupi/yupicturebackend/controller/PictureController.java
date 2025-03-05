@@ -75,7 +75,7 @@ public class PictureController {
      * @return
      */
     @PostMapping("/delete")
-    public BaseResponse<Boolean> deletePictrue(@RequestBody DeleteRequest deleteRequest, HttpServletRequest request) {
+    public BaseResponse<Boolean> deletePicture(@RequestBody DeleteRequest deleteRequest, HttpServletRequest request) {
         if (deleteRequest == null || deleteRequest.getId() <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
