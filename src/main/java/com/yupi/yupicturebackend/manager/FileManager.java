@@ -22,11 +22,14 @@ import java.util.Date;
 import java.util.List;
 
 /**
+ * 文件服务
  * @CreateTime: 2025-03-01 23:38
  * @Version: 1.0
+ * @Deprecated 已废弃，改为使用 upload 包的模板方法优化
  **/
 @Slf4j
 @Service
+@Deprecated
 public class FileManager {
     @Resource
     private CosClientConfig cosClientConfig;
