@@ -9,6 +9,7 @@ import com.yupi.yupicturebackend.model.entity.User;
 import com.yupi.yupicturebackend.model.vo.PictureVO;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 /**
  * @author xiao
@@ -118,4 +119,15 @@ public interface PictureService extends IService<Picture> {
      * @param picture   相片
      */
     void checkPictureAuth(User loginUser, Picture picture);
+
+
+    /**
+     * 按颜色搜索图片
+     *
+     * @param spaceId   空间id
+     * @param picColor  图片颜色
+     * @param loginUser 登录用户
+     * @return 列表<图片vo>
+     */
+    List<PictureVO> searchPictureByColor(Long spaceId, String picColor, User loginUser);
 }
