@@ -47,7 +47,7 @@ public abstract class PictureUploadTemplate {
         validPicture(inputSource);
         //2、图片上传地址
         String uuid = RandomUtil.randomString(16);
-        String originalFilename = getOriginalFilename(inputSource);
+        String originalFilename = getOriginFilename(inputSource);
         //自己拼接文件上传路径，而不是使用原始文件名称，可增强安全性
         String uploadFilename = String.format("%s_%s.%s", DateUtil.formatDate(new Date()), uuid, FileUtil.getSuffix(originalFilename));
         String uploadPath = String.format("/%s/%s", uploadPathPrefix, uploadFilename);
@@ -101,7 +101,7 @@ public abstract class PictureUploadTemplate {
      * @param inputSource
      * @return
      */
-    protected abstract String getOriginalFilename(Object inputSource);
+    protected abstract String getOriginFilename(Object inputSource);
 
     /**
      * 处理输入源并生成本地临时文件

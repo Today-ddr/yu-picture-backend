@@ -34,7 +34,7 @@ public class FilePictureUpload extends PictureUploadTemplate {
     }
 
     @Override
-    protected String getOriginalFilename(Object inputSource) {
+    protected String getOriginFilename(Object inputSource) {
         MultipartFile multipartFile = (MultipartFile) inputSource;
         return multipartFile.getOriginalFilename();
     }
