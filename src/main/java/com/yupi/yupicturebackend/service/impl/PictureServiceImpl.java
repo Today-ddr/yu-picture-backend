@@ -204,7 +204,7 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
         picture.setPicColor(uploadPictureResult.getPicColor());
         picture.setUserId(loginUser.getId());
         //补充审核参数
-        this.fillReviewParams(picture, loginUser);
+        this.fillReviewParams(picture,  loginUser);
         //操作数据库
         //如果 pictureId 不为空，标识更新，否则是新增
         if (pictureId != null) {
@@ -409,8 +409,14 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
      * @param loginUser
      */
     @Override
-    public void fillReviewParams(Picture picture, User loginUser) {
-        if (userService.isAdmin(loginUser)) {
+    public void fillReviewParams(Picture picture,  User loginUser) {
+        if (picture.getSpaceId() != null) {
+            //空间自动过审
+            picture.setReviewStatus(PictureReviewStatusEnum.PASS.getValue());
+            picture.setReviewerId(loginUser.getId());
+            picture.setReviewMessage("空间自动过审");
+            picture.setReviewTime(new Date());
+        } else if (userService.isAdmin(loginUser)) {
             //管理员自动过审
             picture.setReviewStatus(PictureReviewStatusEnum.PASS.getValue());
             picture.setReviewerId(loginUser.getId());
@@ -526,7 +532,7 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
             boolean result = this.removeById(pictureId);
             ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
             //更新空间的使用额度，释放额度
-            if (oldPicture.getSpaceId() !=null) {
+            if (oldPicture.getSpaceId() != null) {
                 boolean update = spaceService.lambdaUpdate()
                         .eq(Space::getId, oldPicture.getSpaceId())
                         .setSql("totalSize = totalSize - " + oldPicture.getPicSize())
@@ -560,6 +566,7 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
 //        this.checkPictureAuth(loginUser, oldPicture);
         //补充审核参数
         this.fillReviewParams(picture, loginUser);
+
         //操作数据库
         boolean result = this.updateById(picture);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
@@ -661,7 +668,7 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
         });
         //批量重命名
         String nameRule = pictureEditByBatchRequest.getNameRule();
-        fillPictureWithNameRule(pictureList,nameRule);
+        fillPictureWithNameRule(pictureList, nameRule);
         //5、操作数据库进行批量更新
         boolean result = this.updateBatchById(pictureList);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR, "批量编辑失败");
