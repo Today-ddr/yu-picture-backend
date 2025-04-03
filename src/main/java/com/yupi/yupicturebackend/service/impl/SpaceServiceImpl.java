@@ -53,6 +53,11 @@ public class SpaceServiceImpl extends ServiceImpl<SpaceMapper, Space>
     @Resource
     private TransactionTemplate transactionTemplate;
 
+    //分库分表
+//    @Resource
+//    @Lazy
+//    private DynamicShardingManager dynamicShardingManager;
+
     @Override
     public long addSpace(SpaceAddRequest spaceAddRequest, User loginUser) {
         //1、填充参数默认值
@@ -101,6 +106,8 @@ public class SpaceServiceImpl extends ServiceImpl<SpaceMapper, Space>
                     result = spaceUserService.save(spaceUser);
                     ThrowUtils.throwIf(!result,ErrorCode.OPERATION_ERROR,"创建团队成员记录失败");
                 }
+                //创建分表（仅对团队空间生效）
+//                dynamicShardingManager.createSpacePictureTable(space);
                 //返回新写入的数据 id
                 return space.getId();
             });
