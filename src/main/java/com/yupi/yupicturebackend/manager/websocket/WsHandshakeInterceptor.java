@@ -102,7 +102,7 @@ public class WsHandshakeInterceptor implements HandshakeInterceptor {
             attributes.put("userId", loginUser.getId());
             attributes.put("pictureId", Long.valueOf(pictureId));//记得转换为Long类型
         }
-        return false;
+        return true;
     }
 
     @Override
