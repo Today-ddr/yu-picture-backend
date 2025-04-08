@@ -13,6 +13,12 @@ import java.io.Serializable;
 public class UserRegisterRequest implements Serializable {
 
     private static final long serialVersionUID = -4736848543355614070L;
+
+    /**
+     * 用户昵称
+     */
+    private String userName;
+
     /**
      * 账号
      */

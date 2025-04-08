@@ -6,6 +6,7 @@ import com.yupi.yupicturebackend.model.dto.user.UserQueryRequest;
 import com.yupi.yupicturebackend.model.entity.User;
 import com.yupi.yupicturebackend.model.vo.LoginUserVO;
 import com.yupi.yupicturebackend.model.vo.UserVO;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -20,12 +21,13 @@ public interface UserService extends IService<User> {
     /**
      * 用户注册
      *
+     * @param userName      用户昵称
      * @param userAccount   用户账户
      * @param userPassword  用户密码
      * @param checkPassword 校验密码
      * @return 新用户id
      */
-    long userRegister(String userAccount, String userPassword, String checkPassword);
+    long userRegister(String userName,String userAccount, String userPassword, String checkPassword);
 
     /**
      * 用户登录
@@ -101,4 +103,13 @@ public interface UserService extends IService<User> {
      * @return
      */
     boolean isAdmin(User user);
+
+    /**
+     * 上传头像
+     *
+     * @param multipartFile 多部件文件
+     * @param loginUser     登录用户
+     * @return 图片地址
+     */
+    UserVO uploadAvatar(MultipartFile multipartFile, User loginUser);
 }

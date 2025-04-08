@@ -10,6 +10,8 @@ import com.yupi.yupicturebackend.constant.UserConstant;
 import com.yupi.yupicturebackend.exception.BusinessException;
 import com.yupi.yupicturebackend.exception.ErrorCode;
 import com.yupi.yupicturebackend.exception.ThrowUtils;
+import com.yupi.yupicturebackend.manager.auth.annotation.SaSpaceCheckPermission;
+import com.yupi.yupicturebackend.manager.auth.model.SpaceUserPermissionConstant;
 import com.yupi.yupicturebackend.model.dto.user.*;
 import com.yupi.yupicturebackend.model.entity.User;
 import com.yupi.yupicturebackend.model.vo.LoginUserVO;
@@ -17,6 +19,7 @@ import com.yupi.yupicturebackend.model.vo.UserVO;
 import com.yupi.yupicturebackend.service.UserService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -41,10 +44,11 @@ public class UserController {
     @PostMapping("/register")
     public BaseResponse<Long> userRegister(@RequestBody UserRegisterRequest userRegisterRequest) {
         ThrowUtils.throwIf(userRegisterRequest == null, ErrorCode.PARAMS_ERROR);
+        String userName = userRegisterRequest.getUserName();
         String userAccount = userRegisterRequest.getUserAccount();
         String userPassword = userRegisterRequest.getUserPassword();
         String checkPassword = userRegisterRequest.getCheckPassword();
-        long result = userService.userRegister(userAccount, userPassword, checkPassword);
+        long result = userService.userRegister(userName,userAccount, userPassword, checkPassword);
         return ResultUtils.success(result);
     }
 
@@ -147,6 +151,38 @@ public class UserController {
         boolean result = userService.updateById(user);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
         return ResultUtils.success(true);
+    }
+
+    /**
+     * 更新个人资料
+     */
+    @PostMapping("/set/data")
+    public BaseResponse<Boolean> setUserData(@RequestBody SetUserDataRequest setUserDataRequest) {
+        if (setUserDataRequest == null || setUserDataRequest.getId() == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        User user = new User();
+        BeanUtils.copyProperties(setUserDataRequest, user);
+        boolean result = userService.updateById(user);
+        ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
+        return ResultUtils.success(true);
+    }
+
+    /**
+     * 上传头像（仅返回地址）
+     *
+     * @param multipartFile
+     * @param request
+     * @return
+     */
+    @PostMapping("/uploadAvatar")
+    @SaSpaceCheckPermission(value = SpaceUserPermissionConstant.PICTURE_UPLOAD)
+    public BaseResponse<UserVO> uploadAvatar(
+            @RequestPart("file") MultipartFile multipartFile,
+            HttpServletRequest request) {
+        User loginUser = userService.getLoginUser(request);
+        UserVO user = userService.uploadAvatar(multipartFile, loginUser);
+        return ResultUtils.success(user);
     }
 
     /**

@@ -9,8 +9,12 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.yupi.yupicturebackend.constant.UserConstant;
 import com.yupi.yupicturebackend.exception.BusinessException;
 import com.yupi.yupicturebackend.exception.ErrorCode;
+import com.yupi.yupicturebackend.exception.ThrowUtils;
 import com.yupi.yupicturebackend.manager.auth.StpKit;
+import com.yupi.yupicturebackend.manager.upload.FilePictureUpload;
+import com.yupi.yupicturebackend.manager.upload.PictureUploadTemplate;
 import com.yupi.yupicturebackend.mapper.UserMapper;
+import com.yupi.yupicturebackend.model.dto.file.UploadPictureResult;
 import com.yupi.yupicturebackend.model.dto.user.UserQueryRequest;
 import com.yupi.yupicturebackend.model.entity.User;
 import com.yupi.yupicturebackend.model.enums.UserRoleEnum;
@@ -20,7 +24,9 @@ import com.yupi.yupicturebackend.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,6 +41,8 @@ import java.util.stream.Collectors;
 @Slf4j
 public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         implements UserService {
+    @Resource
+    private FilePictureUpload filePictureUpload;
 
     /**
      * 用户注册
@@ -45,9 +53,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
      * @return 新用户id
      */
     @Override
-    public long userRegister(String userAccount, String userPassword, String checkPassword) {
+    public long userRegister(String userName, String userAccount, String userPassword, String checkPassword) {
         //1、校验参数
-        if (StrUtil.hasBlank(userAccount, userPassword, checkPassword)) {
+        if (StrUtil.hasBlank(userName, userAccount, userPassword, checkPassword)) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "参数为空");
         }
         if (userAccount.length() < 4) {
@@ -72,7 +80,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         User user = new User();
         user.setUserAccount(userAccount);
         user.setUserPassword(encryptPassword);
-        user.setUserName("无名");
+        user.setUserName(userName);
         user.setUserRole(UserRoleEnum.USER.getValue());
         boolean saveResult = this.save(user);
         if (!saveResult) {
@@ -250,6 +258,24 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         queryWrapper.like(StrUtil.isNotBlank(userProfile), "userProfile", userProfile);
         queryWrapper.orderBy(StrUtil.isNotEmpty(sortField), sortOrder.equals("ascend"), sortField);
         return queryWrapper;
+    }
+
+    @Override
+    public UserVO uploadAvatar(MultipartFile multipartFile, User loginUser) {
+        //校验参数
+        ThrowUtils.throwIf(loginUser == null, ErrorCode.NO_AUTH_ERROR);
+        //上传头像，得到头像信息
+        String uploadPathPrefix = String.format("avatar/%s", loginUser.getId());
+
+        //根据 inputSource 的类型区分上传方式
+        PictureUploadTemplate pictureUploadTemplate = filePictureUpload;
+
+        UploadPictureResult uploadPictureResult = pictureUploadTemplate.uploadPicture(multipartFile, uploadPathPrefix);
+        UserVO userVO = new UserVO();
+        userVO.setId(loginUser.getId());
+        userVO.setUserAvatar(uploadPictureResult.getUrl());
+        userVO.setAvatarThumbnail(uploadPictureResult.getThumbnailUrl());
+        return userVO;
     }
 
     /**

@@ -1,10 +1,10 @@
 package com.yupi.yupicturebackend.model.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
+import lombok.Data;
 
 import java.io.Serializable;
 import java.util.Date;
-import lombok.Data;
 
 /**
  * 用户
@@ -35,10 +35,14 @@ public class  User implements Serializable {
     private String userName;
 
     /**
-     * 用户头像
+     * 用户头像（原图）
      */
     private String userAvatar;
 
+    /**
+     * 用户头像（缩略图）
+     */
+    private String avatarThumbnail;
     /**
      * 用户简介
      */
